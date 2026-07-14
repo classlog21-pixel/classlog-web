@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLASSLOG | 반주악보 · 반주음원 (판매)</title>
+<style>
+  :root {
+    --bg: #faf7f3;
+    --ink: #33261c;
+    --ink-soft: #7a6656;
+    --line: #efe6dc;
+    --brand: #e8722c;
+    --brand-dark: #c9591a;
+    --accent: #e8590c;
+    --card: #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  .container { max-width: 760px; margin: 0 auto; padding: 0 20px; }
+
+  /* Header (첫 화면과 같은 오렌지 그라데이션) */
+  .page-head {
+    background: linear-gradient(165deg, #fff1e2 0%, #fdf7f1 100%);
+    padding: 40px 20px 34px;
+    text-align: center;
+    border-bottom: 1px solid var(--line);
+  }
+  .page-head .back {
+    display: inline-block;
+    text-decoration: none;
+    color: var(--brand-dark);
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+  .page-head .back:hover { text-decoration: underline; }
+  .page-head .badge {
+    display: inline-block;
+    background: #fff0e6;
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 5px 14px;
+    border-radius: 30px;
+    margin-bottom: 12px;
+  }
+  .page-head h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.5px; }
+  .page-head p { font-size: 14px; color: var(--ink-soft); margin-top: 6px; }
+
+  main { padding: 30px 0 56px; }
+
+  /* 분류 버튼 (반주악보 / 반주음원 전환) */
+  .cat-tabs {
+    display: flex;
+    gap: 8px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 6px;
+    max-width: 360px;
+    margin: 0 auto 28px;
+  }
+  .cat-tab {
+    flex: 1 1 0;
+    padding: 12px 10px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--ink-soft);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .cat-tab:hover:not(.active) { background: #fff4ec; color: var(--brand-dark); }
+  .cat-tab.active {
+    background: var(--brand);
+    color: #fff;
+    box-shadow: 0 6px 16px rgba(232, 114, 44, 0.3);
+  }
+  .cat-tab .tab-icon { margin-right: 6px; }
+
+  /* 검색창 */
+  .search-row {
+    display: flex; gap: 8px; max-width: 460px; margin: 0 auto 22px;
+  }
+  .search-row input {
+    flex: 1 1 auto; min-width: 0; padding: 12px 15px; border: 1px solid var(--line);
+    border-radius: 12px; font-family: inherit; font-size: 14.5px; background: #fff; color: var(--ink);
+  }
+  .search-row input:focus { outline: none; border-color: var(--brand); }
+  .search-row button {
+    flex: 0 0 auto; border: 1px solid var(--line); background: #fff; color: var(--ink-soft);
+    border-radius: 12px; padding: 0 16px; font-family: inherit; font-weight: 700; font-size: 13.5px; cursor: pointer;
+  }
+  .search-row button:hover { background: #fff1e2; }
+  .search-note {
+    max-width: 460px; margin: -12px auto 20px; text-align: center;
+    font-size: 13px; color: var(--brand-dark);
+  }
+
+  /* 제품 목록 — 버튼형 아이콘 (무료악보 페이지와 동일 구성) */
+  .sheet-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  @media (min-width: 480px) { .sheet-grid { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 700px) { .sheet-grid { grid-template-columns: 1fr 1fr 1fr; } }
+
+  .sheet-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    text-align: left;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 18px 18px;
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--ink);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    animation: pop 0.2s ease;
+  }
+  @keyframes pop { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+  .sheet-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(232, 114, 44, 0.16);
+    border-color: #f0c199;
+  }
+  .sheet-btn:active { transform: scale(0.98); }
+
+  /* [악보] / [MR] 아이콘 뱃지 */
+  .sheet-btn .thumb {
+    flex: 0 0 auto;
+    width: 46px; height: 46px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+  }
+  .thumb.thumb-score { background: linear-gradient(135deg, #ffb877, #e8722c); }
+  .thumb.thumb-mr { background: linear-gradient(135deg, #f0a860, #a85f1d); }
+
+  .sheet-btn .meta { min-width: 0; }
+  .sheet-btn .meta .title {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+  .sheet-btn .meta .sub {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin-top: 3px;
+  }
+  .sheet-btn .meta .price {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* 페이지네이션 */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 32px;
+  }
+  .pagination button {
+    min-width: 40px;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .pagination button:hover:not(:disabled):not(.active) { background: #fff1e2; }
+  .pagination button.active {
+    background: var(--brand);
+    color: #fff;
+    border-color: var(--brand);
+  }
+  .pagination button:disabled { opacity: 0.4; cursor: default; }
+  .page-info { text-align: center; font-size: 13px; color: var(--ink-soft); margin-top: 14px; }
+
+  footer {
+    text-align: center;
+    padding: 26px 20px 40px;
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+
+  <header class="page-head">
+    <div class="container">
+      <a href="index-classlog.html" class="back">← CLASSLOG 홈으로</a>
+      <div><span class="badge">🛒 판매</span></div>
+      <h1>반주악보 · 반주음원</h1>
+      <p>연주에 깊이를 더해줄 반주 악보와 바로 함께 연주할 반주 음원(MR)</p>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <!-- 분류 버튼 -->
+      <div class="cat-tabs" id="catTabs">
+        <button class="cat-tab active" data-cat="score"><span class="tab-icon">🎹</span>반주악보</button>
+        <button class="cat-tab" data-cat="mr"><span class="tab-icon">🎧</span>반주음원</button>
+      </div>
+
+      <!-- 검색창 -->
+      <div class="search-row">
+        <input type="text" id="searchInput" placeholder="곡 제목으로 검색 (예: 아리랑)">
+        <button id="searchClear">전체 보기</button>
+      </div>
+      <p class="search-note" id="searchNote"></p>
+
+      <div class="sheet-grid" id="sheetGrid"></div>
+      <div class="pagination" id="pagination"></div>
+      <p class="page-info" id="pageInfo"></p>
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2026 CLASSLOG (클라쓰로그). All rights reserved.
+  </footer>
+
+  <script>
+    // 판매 상품 목록 (실습용 가짜 데이터 — 제품이 늘어나면 배열에 추가만 하면 자동 페이지네이션)
+    // score = 반주악보([악보]), mr = 반주음원([MR])
+    var catalog = {
+      score: {
+        badge: '악보',          // 아이콘에 표시될 글자
+        thumbClass: 'thumb-score',
+        format: 'PDF',
+        items: [
+          { title: '아리랑 (피아노 반주)', level: '★★☆', price: 3900 },
+          { title: '고향의 봄 (피아노 반주)', level: '★★☆', price: 3900 },
+          { title: '베토벤 · 환희의 송가', level: '★★☆', price: 4500 },
+          { title: '파헬벨 · 캐논', level: '★★★', price: 5500 },
+          { title: '엘가 · 사랑의 인사', level: '★★☆', price: 4900 },
+          { title: '생상스 · 백조', level: '★★☆', price: 4900 },
+          { title: '슈베르트 · 세레나데', level: '★★★', price: 5500 },
+          { title: '비발디 · 사계 「봄」', level: '★★★', price: 5900 },
+          { title: '드보르작 · 유모레스크', level: '★★☆', price: 4900 },
+          { title: '브람스 · 자장가', level: '★★☆', price: 3900 },
+          { title: '모차르트 · 클라리넷 협주곡 2악장', level: '★★★', price: 6900 },
+          { title: '웨딩 클래식 모음집', level: '★★☆', price: 7900 }
+        ]
+      },
+      mr: {
+        badge: 'MR',
+        thumbClass: 'thumb-mr',
+        format: 'MP3',
+        items: [
+          { title: '아리랑 (MR)', len: '2분 40초', price: 2900 },
+          { title: '고향의 봄 (MR)', len: '2분 55초', price: 2900 },
+          { title: '환희의 송가 (MR)', len: '3분 10초', price: 3500 },
+          { title: '캐논 (MR)', len: '4분 05초', price: 3900 },
+          { title: '사랑의 인사 (MR)', len: '3분 20초', price: 3500 },
+          { title: '백조 (MR)', len: '3분 00초', price: 3500 },
+          { title: '세레나데 (MR)', len: '3분 45초', price: 3900 },
+          { title: '봄 (MR)', len: '3분 30초', price: 3900 },
+          { title: '유모레스크 (MR)', len: '3분 15초', price: 3500 },
+          { title: '자장가 (MR)', len: '2분 50초', price: 2900 },
+          { title: '재즈 스탠다드 반주 (MR)', len: '4분 20초', price: 4900 },
+          { title: '크리스마스 캐럴 모음 (MR)', len: '5분 10초', price: 5900 }
+        ]
+      }
+    };
+
+    var PER_PAGE = 9;         // 한 페이지에 9개씩
+    var currentCat = 'score'; // 현재 분류
+    var currentPage = 1;
+    var searchTerm = '';      // 검색어 (비어있으면 전체)
+
+    var tabs = document.getElementById('catTabs');
+    var grid = document.getElementById('sheetGrid');
+    var pager = document.getElementById('pagination');
+    var pageInfo = document.getElementById('pageInfo');
+    var searchInput = document.getElementById('searchInput');
+    var searchNote = document.getElementById('searchNote');
+
+    function esc(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+    // 3900 → 3,900 (천 단위 콤마)
+    function won(n) {
+      return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    // 현재 분류에서 검색어에 맞는 상품만 (검색어 없으면 전체)
+    function activeItems() {
+      var items = catalog[currentCat].items;
+      if (!searchTerm) return items;
+      var t = searchTerm.toLowerCase();
+      return items.filter(function (p) { return p.title.toLowerCase().indexOf(t) !== -1; });
+    }
+    function totalPages() {
+      return Math.max(1, Math.ceil(activeItems().length / PER_PAGE));
+    }
+
+    function renderList() {
+      var cat = catalog[currentCat];
+      var items = activeItems();
+      var pages = totalPages();
+      if (currentPage > pages) currentPage = pages;
+
+      // 검색 안내 문구
+      if (searchTerm) {
+        searchNote.textContent = '"' + searchTerm + '" 검색 결과 ' + items.length + '개' +
+          (items.length === 0 ? ' — 이 곡은 준비 중이에요. 문의해 주세요!' : '');
+      } else {
+        searchNote.textContent = '';
+      }
+
+      var start = (currentPage - 1) * PER_PAGE;
+      var pageItems = items.slice(start, start + PER_PAGE);
+
+      if (items.length === 0) {
+        grid.innerHTML = '';
+      }
+
+      var html = '';
+      pageItems.forEach(function (p, i) {
+        // 분류에 따라 부가 정보(난이도 / 재생시간)만 다르게 표시
+        var extra = currentCat === 'score'
+          ? '난이도 ' + esc(p.level)
+          : '⏱ ' + esc(p.len);
+        html +=
+          '<button class="sheet-btn" data-index="' + (start + i) + '">' +
+            '<span class="thumb ' + cat.thumbClass + '">' + esc(cat.badge) + '</span>' +
+            '<span class="meta">' +
+              '<span class="title">' + esc(p.title) + '</span>' +
+              '<span class="sub"><span class="price">₩' + won(p.price) + '</span> · ' + extra + ' · ' + esc(cat.format) + '</span>' +
+            '</span>' +
+          '</button>';
+      });
+      grid.innerHTML = html;
+
+      renderPager(pages);
+      pageInfo.textContent = '전체 ' + items.length + '개 · ' + currentPage + ' / ' + pages + ' 페이지';
+    }
+
+    function renderPager(pages) {
+      var html = '';
+      html += '<button data-page="prev"' + (currentPage === 1 ? ' disabled' : '') + '>‹</button>';
+      for (var n = 1; n <= pages; n++) {
+        html += '<button data-page="' + n + '"' + (n === currentPage ? ' class="active"' : '') + '>' + n + '</button>';
+      }
+      html += '<button data-page="next"' + (currentPage === pages ? ' disabled' : '') + '>›</button>';
+      pager.innerHTML = html;
+    }
+
+    // 분류 버튼 전환
+    tabs.addEventListener('click', function (e) {
+      var btn = e.target.closest('.cat-tab');
+      if (!btn) return;
+      var cat = btn.getAttribute('data-cat');
+      if (cat === currentCat) return;
+      currentCat = cat;
+      currentPage = 1;
+      Array.prototype.forEach.call(tabs.querySelectorAll('.cat-tab'), function (b) {
+        b.classList.toggle('active', b === btn);
+      });
+      renderList();
+    });
+
+    // 페이지 이동
+    pager.addEventListener('click', function (e) {
+      var btn = e.target.closest('button');
+      if (!btn) return;
+      var p = btn.getAttribute('data-page');
+      var pages = totalPages();
+      if (p === 'prev') { if (currentPage > 1) currentPage--; }
+      else if (p === 'next') { if (currentPage < pages) currentPage++; }
+      else { currentPage = parseInt(p, 10); }
+      renderList();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // 제품 클릭 (구매/상세 페이지는 이후 단계에서 연결)
+    grid.addEventListener('click', function (e) {
+      var btn = e.target.closest('.sheet-btn');
+      if (!btn) return;
+      var idx = parseInt(btn.getAttribute('data-index'), 10);
+      var p = activeItems()[idx];
+      if (!p) return;
+      var kind = currentCat === 'score' ? '반주악보' : '반주음원(MR)';
+      alert('「' + p.title + '」 · ' + kind + '\n₩' + won(p.price) +
+        '\n\n구매 · 상세 페이지는 준비 중이에요. 🎵\n지금은 classlog21@gmail.com 으로 문의해 주세요.');
+    });
+
+    // 검색 입력 (입력할 때마다 실시간 필터)
+    searchInput.addEventListener('input', function () {
+      searchTerm = searchInput.value.trim();
+      currentPage = 1;
+      renderList();
+    });
+    document.getElementById('searchClear').addEventListener('click', function () {
+      searchTerm = '';
+      searchInput.value = '';
+      currentPage = 1;
+      renderList();
+      searchInput.focus();
+    });
+
+    // 주소에서 ?q= 값 읽기 (방의 '바로 구매' 버튼으로 들어올 때)
+    function qs(name) {
+      var m = new RegExp('[?&]' + name + '=([^&]*)').exec(location.search);
+      return m ? decodeURIComponent(m[1].replace(/\+/g, ' ')) : '';
+    }
+
+    // 홈 카드/방에서 #mr / #score 로 들어오면 해당 분류를 먼저 보여주고, ?q= 가 있으면 검색어로 채움
+    (function initFromUrl() {
+      var h = (location.hash || '').replace('#', '');
+      if (h === 'mr' || h === 'score') {
+        currentCat = h;
+        Array.prototype.forEach.call(tabs.querySelectorAll('.cat-tab'), function (b) {
+          b.classList.toggle('active', b.getAttribute('data-cat') === h);
+        });
+      }
+      var q = qs('q');
+      if (q) { searchTerm = q; searchInput.value = q; }
+    })();
+
+    renderList();
+  </script>
+
+</body>
+</html>

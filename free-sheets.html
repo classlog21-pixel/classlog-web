@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLASSLOG | 무료악보 목록</title>
+<style>
+  :root {
+    --bg: #faf7f3;
+    --ink: #33261c;
+    --ink-soft: #7a6656;
+    --line: #efe6dc;
+    --brand: #e8722c;
+    --brand-dark: #c9591a;
+    --accent: #e8590c;
+    --card: #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  .container { max-width: 760px; margin: 0 auto; padding: 0 20px; }
+
+  /* Header (첫 화면과 같은 오렌지 그라데이션) */
+  .page-head {
+    background: linear-gradient(165deg, #fff1e2 0%, #fdf7f1 100%);
+    padding: 40px 20px 34px;
+    text-align: center;
+    border-bottom: 1px solid var(--line);
+  }
+  .page-head .back {
+    display: inline-block;
+    text-decoration: none;
+    color: var(--brand-dark);
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+  .page-head .back:hover { text-decoration: underline; }
+  .page-head .badge {
+    display: inline-block;
+    background: #e6f4ea;
+    color: #2b8a3e;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 5px 14px;
+    border-radius: 30px;
+    margin-bottom: 12px;
+  }
+  .page-head h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.5px; }
+  .page-head p { font-size: 14px; color: var(--ink-soft); margin-top: 6px; }
+
+  main { padding: 34px 0 56px; }
+
+  /* 제품 목록 — 버튼형 아이콘 */
+  .sheet-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  @media (min-width: 480px) { .sheet-grid { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 700px) { .sheet-grid { grid-template-columns: 1fr 1fr 1fr; } }
+
+  .sheet-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    text-align: left;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 18px 18px;
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--ink);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    animation: pop 0.2s ease;
+  }
+  @keyframes pop { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+  .sheet-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(232, 114, 44, 0.16);
+    border-color: #f0c199;
+  }
+  .sheet-btn:active { transform: scale(0.98); }
+  .sheet-btn .thumb {
+    flex: 0 0 auto;
+    width: 46px; height: 46px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #ffb877, #e8722c);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  .sheet-btn .meta { min-width: 0; }
+  .sheet-btn .meta .title {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+  .sheet-btn .meta .sub {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin-top: 3px;
+  }
+  .sheet-btn .meta .free {
+    color: #2b8a3e;
+    font-weight: 700;
+  }
+
+  /* 새 방 추가 장치 */
+  .add-bar { text-align: center; margin-bottom: 20px; }
+  .add-btn {
+    background: #fff; border: 1.5px dashed #f0a868; color: var(--brand-dark);
+    font-family: inherit; font-weight: 700; font-size: 15px;
+    padding: 14px 24px; border-radius: 14px; cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease;
+  }
+  .add-btn:hover { background: #fff4ec; }
+  .add-btn:active { transform: scale(0.98); }
+  .add-form {
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    padding: 20px 20px; margin-bottom: 24px;
+    animation: pop 0.2s ease;
+  }
+  .add-form .add-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+  .add-form label { flex: 1 1 200px; font-size: 13px; font-weight: 700; color: var(--ink-soft); display: block; }
+  .add-form label.icon-field { flex: 0 0 130px; }
+  .add-form input, .add-form select {
+    display: block; width: 100%; margin-top: 6px;
+    padding: 11px 13px; border: 1px solid var(--line); border-radius: 10px;
+    font-family: inherit; font-size: 14px; background: #fff; color: var(--ink); font-weight: 500;
+  }
+  .add-form input:focus, .add-form select:focus { outline: none; border-color: var(--brand); }
+  .add-actions { display: flex; gap: 10px; }
+  .add-submit {
+    background: var(--brand); color: #fff; border: none; border-radius: 10px;
+    font-family: inherit; font-weight: 700; font-size: 14.5px; padding: 12px 22px; cursor: pointer;
+  }
+  .add-submit:hover { background: var(--brand-dark); }
+  .add-cancel {
+    background: #fff; color: var(--ink-soft); border: 1px solid var(--line); border-radius: 10px;
+    font-family: inherit; font-weight: 700; font-size: 14.5px; padding: 12px 18px; cursor: pointer;
+  }
+  .add-hint { font-size: 12.5px; color: var(--ink-soft); margin-top: 12px; }
+
+  /* 내가 추가한 방 표시 + 삭제 버튼 */
+  .sheet-btn { position: relative; }
+  .sheet-btn .mine-tag {
+    display: inline-block; font-size: 10.5px; font-weight: 700; color: var(--brand-dark);
+    background: #fff1e2; border-radius: 20px; padding: 1px 8px; margin-left: 6px; vertical-align: middle;
+  }
+  .sheet-btn .room-del {
+    position: absolute; top: 8px; right: 8px; width: 24px; height: 24px;
+    border: none; border-radius: 50%; background: #f6ece2; color: #c0392b;
+    font-size: 14px; line-height: 24px; text-align: center; cursor: pointer; padding: 0;
+  }
+  .sheet-btn .room-del:hover { background: #ffd9d2; }
+
+  /* 페이지네이션 */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 32px;
+  }
+  .pagination button {
+    min-width: 40px;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .pagination button:hover:not(:disabled):not(.active) { background: #fff1e2; }
+  .pagination button.active {
+    background: var(--brand);
+    color: #fff;
+    border-color: var(--brand);
+  }
+  .pagination button:disabled { opacity: 0.4; cursor: default; }
+  .page-info { text-align: center; font-size: 13px; color: var(--ink-soft); margin-top: 14px; }
+
+  /* 판매 페이지로 가는 안내 배너 */
+  .to-paid {
+    margin-top: 40px;
+    background: linear-gradient(135deg, #fff6ec 0%, #fdeede 100%);
+    border: 1px solid #f0c199;
+    border-radius: 18px;
+    padding: 26px 22px;
+    text-align: center;
+  }
+  .to-paid h3 { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+  .to-paid p { font-size: 14px; color: var(--ink-soft); margin-bottom: 18px; }
+  .to-paid a {
+    display: inline-block;
+    text-decoration: none;
+    background: var(--brand);
+    color: #fff;
+    font-weight: 700;
+    font-size: 15px;
+    padding: 14px 26px;
+    border-radius: 12px;
+    box-shadow: 0 8px 22px rgba(232, 114, 44, 0.32);
+    transition: background 0.15s ease, transform 0.15s ease;
+  }
+  .to-paid a:hover { background: var(--brand-dark); }
+  .to-paid a:active { transform: scale(0.98); }
+
+  footer {
+    text-align: center;
+    padding: 26px 20px 40px;
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+
+  <header class="page-head">
+    <div class="container">
+      <a href="index-classlog.html" class="back">← CLASSLOG 홈으로</a>
+      <div><span class="badge">🎼 무료</span></div>
+      <h1>무료악보 목록</h1>
+      <p>가볍게 연습하기 좋은 클라리넷 악보를 무료로 만나보세요</p>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <!-- 새 방(악보) 추가 장치 -->
+      <div class="add-bar">
+        <button class="add-btn" id="addToggle">＋ 새 악보 방 만들기</button>
+      </div>
+      <div class="add-form" id="addForm" hidden>
+        <div class="add-row">
+          <label>제목
+            <input type="text" id="newTitle" placeholder="예) 봄날 · 클라리넷" maxlength="40">
+          </label>
+          <label class="icon-field">아이콘(이모지)
+            <input type="text" id="newIcon" placeholder="🎵" maxlength="4">
+          </label>
+        </div>
+        <div class="add-row">
+          <label>난이도
+            <select id="newLevel">
+              <option value="★☆☆">★☆☆ (쉬움)</option>
+              <option value="★★☆">★★☆ (보통)</option>
+              <option value="★★★">★★★ (어려움)</option>
+            </select>
+          </label>
+        </div>
+        <div class="add-actions">
+          <button class="add-submit" id="addSubmit">방 만들기</button>
+          <button class="add-cancel" id="addCancel">취소</button>
+        </div>
+        <p class="add-hint">방을 만들면 목록에 아이콘이 생기고, 클릭하면 그 방에서 PDF·이미지·영상·댓글을 올릴 수 있어요.</p>
+      </div>
+
+      <div class="sheet-grid" id="sheetGrid"></div>
+      <div class="pagination" id="pagination"></div>
+      <p class="page-info" id="pageInfo"></p>
+
+      <!-- 판매 페이지 안내 -->
+      <div class="to-paid">
+        <h3>🎹 더 깊은 연주를 원하시나요?</h3>
+        <p>피아노 반주 악보와 바로 함께 연주할 반주 음원(MR)도 준비되어 있어요.</p>
+        <a href="paid-sheets.html">반주악보 · 반주음원 보러가기 →</a>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2026 CLASSLOG (클라쓰로그). All rights reserved.
+  </footer>
+
+  <script>
+    // ── 기본 제공 무료 악보 (id 는 방을 구분하는 고유 이름) ──
+    var defaultProducts = [
+      { id: 'free-arirang',   icon: '🎵', title: '아리랑', level: '★☆☆' },
+      { id: 'free-star',      icon: '⭐', title: '반짝반짝 작은별', level: '★☆☆' },
+      { id: 'free-schoolbell',icon: '🔔', title: '학교종', level: '★☆☆' },
+      { id: 'free-rabbit',    icon: '🐰', title: '산토끼', level: '★☆☆' },
+      { id: 'free-butterfly', icon: '🦋', title: '나비야', level: '★☆☆' },
+      { id: 'free-ode',       icon: '🎼', title: '베토벤 · 환희의 송가', level: '★★☆' },
+      { id: 'free-lullaby',   icon: '🌙', title: '브람스 · 자장가', level: '★★☆' },
+      { id: 'free-canon',     icon: '🎻', title: '파헬벨 · 캐논 (주제)', level: '★★☆' },
+      { id: 'free-spring',    icon: '🌸', title: '고향의 봄', level: '★☆☆' },
+      { id: 'free-eine',      icon: '🎹', title: '모차르트 · 아이네 클라이네 (주제)', level: '★★☆' },
+      { id: 'free-avemaria',  icon: '⛄', title: '슈베르트 · 아베마리아 (주제)', level: '★★★' },
+      { id: 'free-vivaldi',   icon: '🌼', title: '비발디 · 사계 「봄」 (주제)', level: '★★★' },
+      { id: 'free-minuet',    icon: '🎶', title: '바흐 · 미뉴에트', level: '★★☆' },
+      { id: 'free-edelweiss', icon: '🏔️', title: '에델바이스', level: '★☆☆' }
+    ];
+
+    // ── 사용자가 추가한 방 (localStorage 에 저장 → 새로고침해도 유지) ──
+    var EXTRA_KEY = 'classlog_free_products_extra';
+    function loadExtra() {
+      try { return JSON.parse(localStorage.getItem(EXTRA_KEY)) || []; }
+      catch (e) { return []; }
+    }
+    function saveExtra() {
+      try { localStorage.setItem(EXTRA_KEY, JSON.stringify(extraProducts)); return true; }
+      catch (e) { alert('저장 공간이 부족해 방을 저장하지 못했어요.'); return false; }
+    }
+    var extraProducts = loadExtra();
+
+    // 화면에 보여줄 전체 목록 = 기본 + 내가 추가한 것
+    function allProducts() { return defaultProducts.concat(extraProducts); }
+
+    var PER_PAGE = 9;         // 한 페이지에 9개씩
+    var currentPage = 1;
+
+    var grid = document.getElementById('sheetGrid');
+    var pager = document.getElementById('pagination');
+    var pageInfo = document.getElementById('pageInfo');
+
+    function esc(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // 방으로 이동하는 주소 만들기
+    function roomUrl(p) {
+      return 'sheet-room.html?id=' + encodeURIComponent(p.id) +
+             '&title=' + encodeURIComponent(p.title) +
+             '&icon=' + encodeURIComponent(p.icon) +
+             '&level=' + encodeURIComponent(p.level);
+    }
+
+    function totalPages() {
+      return Math.max(1, Math.ceil(allProducts().length / PER_PAGE));
+    }
+
+    function renderList() {
+      var products = allProducts();
+      var pages = totalPages();
+      if (currentPage > pages) currentPage = pages;
+
+      var start = (currentPage - 1) * PER_PAGE;
+      var pageItems = products.slice(start, start + PER_PAGE);
+
+      var html = '';
+      pageItems.forEach(function (p) {
+        var mine = !!p.mine;
+        html +=
+          '<button class="sheet-btn" data-id="' + esc(p.id) + '">' +
+            '<span class="thumb">' + esc(p.icon) + '</span>' +
+            '<span class="meta">' +
+              '<span class="title">' + esc(p.title) + (mine ? '<span class="mine-tag">내 방</span>' : '') + '</span>' +
+              '<span class="sub"><span class="free">무료</span> · 난이도 ' + esc(p.level) + ' · PDF</span>' +
+            '</span>' +
+            (mine ? '<span class="room-del" data-del="' + esc(p.id) + '" title="방 삭제">×</span>' : '') +
+          '</button>';
+      });
+      grid.innerHTML = html;
+
+      renderPager(pages);
+      pageInfo.textContent = '전체 ' + products.length + '개 · ' + currentPage + ' / ' + pages + ' 페이지';
+    }
+
+    function renderPager(pages) {
+      var html = '';
+      html += '<button data-page="prev"' + (currentPage === 1 ? ' disabled' : '') + '>‹</button>';
+      for (var n = 1; n <= pages; n++) {
+        html += '<button data-page="' + n + '"' + (n === currentPage ? ' class="active"' : '') + '>' + n + '</button>';
+      }
+      html += '<button data-page="next"' + (currentPage === pages ? ' disabled' : '') + '>›</button>';
+      pager.innerHTML = html;
+    }
+
+    // 페이지 이동
+    pager.addEventListener('click', function (e) {
+      var btn = e.target.closest('button');
+      if (!btn) return;
+      var p = btn.getAttribute('data-page');
+      var pages = totalPages();
+      if (p === 'prev') { if (currentPage > 1) currentPage--; }
+      else if (p === 'next') { if (currentPage < pages) currentPage++; }
+      else { currentPage = parseInt(p, 10); }
+      renderList();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // 제품 클릭 → 그 곡 전용 방(sheet-room.html)으로 이동
+    grid.addEventListener('click', function (e) {
+      // 삭제(×) 버튼을 누른 경우: 내가 만든 방 삭제
+      var del = e.target.closest('.room-del');
+      if (del) {
+        e.preventDefault(); e.stopPropagation();
+        var delId = del.getAttribute('data-del');
+        var target = extraProducts.filter(function (x) { return x.id === delId; })[0];
+        if (target && confirm('「' + target.title + '」 방을 삭제할까요?\n(방에 올린 PDF·이미지·댓글도 함께 지워집니다)')) {
+          extraProducts = extraProducts.filter(function (x) { return x.id !== delId; });
+          saveExtra();
+          try { localStorage.removeItem('classlog_room_' + delId); } catch (err) {}
+          renderList();
+        }
+        return;
+      }
+      var btn = e.target.closest('.sheet-btn');
+      if (!btn) return;
+      var id = btn.getAttribute('data-id');
+      var p = allProducts().filter(function (x) { return x.id === id; })[0];
+      if (p) location.href = roomUrl(p);
+    });
+
+    // ── 새 방 만들기 장치 ──
+    var addToggle = document.getElementById('addToggle');
+    var addForm = document.getElementById('addForm');
+    addToggle.addEventListener('click', function () {
+      var showing = !addForm.hidden;
+      addForm.hidden = showing;
+      addToggle.textContent = showing ? '＋ 새 악보 방 만들기' : '× 닫기';
+      if (!showing) document.getElementById('newTitle').focus();
+    });
+    document.getElementById('addCancel').addEventListener('click', function () {
+      addForm.hidden = true;
+      addToggle.textContent = '＋ 새 악보 방 만들기';
+    });
+    document.getElementById('addSubmit').addEventListener('click', function () {
+      var title = document.getElementById('newTitle').value.trim();
+      var icon = document.getElementById('newIcon').value.trim() || '🎵';
+      var level = document.getElementById('newLevel').value;
+      if (!title) { alert('악보 제목을 입력해 주세요.'); document.getElementById('newTitle').focus(); return; }
+
+      var newProduct = {
+        id: 'user-' + Date.now(),   // 방을 구분할 고유 id
+        icon: icon,
+        title: title,
+        level: level,
+        mine: true                   // 내가 만든 방 표시
+      };
+      extraProducts.push(newProduct);
+      if (!saveExtra()) { extraProducts.pop(); return; }
+
+      // 입력값 초기화 + 폼 닫기
+      document.getElementById('newTitle').value = '';
+      document.getElementById('newIcon').value = '';
+      addForm.hidden = true;
+      addToggle.textContent = '＋ 새 악보 방 만들기';
+
+      // 새 방이 있는 마지막 페이지로 이동해서 보여주기
+      currentPage = totalPages();
+      renderList();
+      // 바로 그 방으로 들어갈지 물어보기
+      if (confirm('「' + title + '」 방을 만들었어요! 🎉\n지금 바로 방으로 들어가서 자료를 올릴까요?')) {
+        location.href = roomUrl(newProduct);
+      }
+    });
+
+    renderList();
+  </script>
+
+</body>
+</html>

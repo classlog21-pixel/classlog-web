@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>마일리지 얻기 | CLASSLOG — 연주하고, AI에게 진단받고, 마일리지 쌓기</title>
+<meta name="description" content="CLASSLOG 마일리지 미션: 매주 새 과제가 열리고, 연주를 녹음해 AI 선생님에게 진단받으세요. 주법 교정 전·후 연주를 올려 5개 미션을 모두 통과하면 마일리지를 받습니다.">
+<style>
+  :root {
+    --bg: #faf7f3; --ink: #33261c; --ink-soft: #7a6656; --line: #efe6dc;
+    --brand: #e8722c; --brand-dark: #c9591a; --accent: #e8590c; --deep: #2b1d13;
+    --ok: #2b8a3e; --ok-bg: #e6f4ea;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', sans-serif;
+    background: var(--bg); color: var(--ink); line-height: 1.7; -webkit-font-smoothing: antialiased;
+    padding-bottom: 40px;
+  }
+  .container { max-width: 760px; margin: 0 auto; padding: 0 20px; }
+  a.back { display: inline-block; margin: 20px 0 0; color: var(--brand-dark); text-decoration: none; font-weight: 600; font-size: 14px; }
+  a.back:hover { text-decoration: underline; }
+
+  /* Hero */
+  .hero { text-align: center; padding: 40px 20px 46px; background: radial-gradient(120% 120% at 50% 0%, #fff2e4 0%, #fdf7f1 60%, #faf7f3 100%); }
+  .hero .badge {
+    display: inline-block; background: #fff; color: var(--brand); border: 1px solid var(--line);
+    font-size: 13px; font-weight: 700; padding: 6px 16px; border-radius: 30px; margin-bottom: 18px;
+  }
+  .hero h1 { font-size: 34px; font-weight: 800; letter-spacing: -0.6px; margin-bottom: 12px; }
+  .hero h1 b { color: var(--brand-dark); }
+  .hero p { font-size: 16px; color: var(--ink-soft); max-width: 560px; margin: 0 auto; }
+
+  section { padding: 40px 0; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 26px 24px; }
+  h2.sec { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+  p.sec-sub { font-size: 14px; color: var(--ink-soft); margin-bottom: 22px; }
+
+  /* 활동 흐름 */
+  .steps { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  .step { display: flex; gap: 14px; align-items: flex-start; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+  .step .n {
+    flex: 0 0 30px; height: 30px; border-radius: 50%; background: linear-gradient(145deg,#e8722c,#c9591a);
+    color: #fff; font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center;
+  }
+  .step .t { font-size: 15px; }
+  .step .t b { color: var(--ink); }
+  .step .t span { color: var(--ink-soft); font-size: 14px; }
+
+  /* 규칙 하이라이트 */
+  .rules { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 8px; }
+  .rule { display: flex; gap: 12px; align-items: center; background: linear-gradient(135deg,#fff6ec,#fff); border: 1.5px solid #f0c199; border-radius: 12px; padding: 16px 18px; }
+  .rule .emj { font-size: 24px; }
+  .rule .rt b { color: var(--brand-dark); }
+  .rule .rt { font-size: 15px; }
+  .rule .rt small { display: block; color: var(--ink-soft); font-size: 13px; margin-top: 2px; }
+
+  /* 미션 진행 */
+  .progress-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+  .mileage-box { text-align: right; }
+  .mileage-box .m-label { font-size: 13px; color: var(--ink-soft); }
+  .mileage-box .m-val { font-size: 26px; font-weight: 800; color: var(--brand-dark); line-height: 1.1; }
+  .mileage-box .m-val small { font-size: 14px; font-weight: 700; }
+  .bar { height: 12px; background: #f0e6da; border-radius: 20px; overflow: hidden; margin-bottom: 6px; }
+  .bar > span { display: block; height: 100%; width: 0; background: linear-gradient(90deg,#e8722c,#e8590c); border-radius: 20px; transition: width .35s ease; }
+  .bar-cap { font-size: 13px; color: var(--ink-soft); text-align: center; margin-bottom: 24px; }
+
+  .mission { display: flex; gap: 14px; align-items: flex-start; padding: 16px 4px; border-bottom: 1px solid var(--line); }
+  .mission:last-child { border-bottom: none; }
+  .mission input[type=checkbox] { width: 22px; height: 22px; margin-top: 2px; accent-color: var(--brand); flex: 0 0 auto; cursor: pointer; }
+  .mission .mbody h3 { font-size: 15px; margin-bottom: 2px; }
+  .mission .mbody p { font-size: 13px; color: var(--ink-soft); }
+  .mission .mtag { flex: 0 0 auto; font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 20px; margin-left: auto; align-self: center; }
+  .mtag.before { background: #eef2ff; color: #3b5bdb; }
+  .mtag.after { background: var(--ok-bg); color: var(--ok); }
+  .mtag.plus { background: #fff0e6; color: var(--accent); }
+  .mission.done .mbody h3 { color: var(--ink-soft); text-decoration: line-through; }
+
+  .reward-note {
+    margin-top: 18px; background: var(--ok-bg); border: 1px solid #bfe3c9; border-radius: 12px;
+    padding: 14px 16px; font-size: 14px; color: #216e33; text-align: center; display: none;
+  }
+  .reward-note.show { display: block; }
+
+  .actions { display: flex; flex-direction: column; gap: 12px; margin-top: 22px; }
+  .btn {
+    display: inline-block; text-decoration: none; text-align: center; padding: 16px 24px;
+    border-radius: 12px; font-weight: 700; font-size: 16px; border: none; cursor: pointer; font-family: inherit;
+    transition: transform .12s ease, background .15s ease;
+  }
+  .btn:active { transform: scale(.98); }
+  .btn-primary { background: var(--brand); color: #fff; box-shadow: 0 8px 22px rgba(232,114,44,.32); }
+  .btn-primary:hover { background: var(--brand-dark); }
+  .btn-ghost { background: #fff; color: var(--brand-dark); border: 1.5px solid var(--line); }
+  .btn-reset { background: transparent; color: var(--ink-soft); font-size: 13px; font-weight: 600; padding: 8px; }
+  .btn-reset:hover { color: var(--brand-dark); }
+
+  .device-note {
+    background: #fff8ef; border: 1px dashed #f0a868; border-radius: 12px; padding: 14px 16px;
+    font-size: 13px; color: var(--ink-soft); margin-top: 14px; line-height: 1.7;
+  }
+  .device-note b { color: var(--brand-dark); }
+  .device-note code { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; font-size: 12px; }
+
+  footer { text-align: center; padding: 30px 20px; font-size: 12px; color: var(--ink-soft); }
+</style>
+</head>
+<body>
+
+  <!-- Hero -->
+  <section class="hero">
+    <span class="badge">🏅 마일리지 미션</span>
+    <h1>연주하고, <b>마일리지를 쌓으세요</b></h1>
+    <p>내 연주를 올리면 AI 선생님이 음정·박자를 진단합니다.<br>그 기록은 CLASSLOG의 AI를 더 똑똑하게 키우는 소중한 데이터가 됩니다.</p>
+    <a class="back" href="index-classlog.html">← CLASSLOG 홈으로</a>
+  </section>
+
+  <div class="container">
+
+    <!-- 어떤 활동을 하나요 -->
+    <section>
+      <div class="card">
+        <h2 class="sec">이렇게 진행돼요</h2>
+        <p class="sec-sub">주법 교정 <b>전·후</b> 연주를 함께 올리는 것이 핵심이에요</p>
+        <div class="steps">
+          <div class="step"><span class="n">1</span><div class="t"><b>이번 주 과제 확인</b> <span>— 매주 새 과제가 열립니다.</span></div></div>
+          <div class="step"><span class="n">2</span><div class="t"><b>교정 전 연주 녹음</b> <span>— 먼저 지금 실력 그대로 한 번 연주해 올려요.</span></div></div>
+          <div class="step"><span class="n">3</span><div class="t"><b>AI 진단 받기</b> <span>— 음정·박자·틀린 음을 리포트로 확인해요.</span></div></div>
+          <div class="step"><span class="n">4</span><div class="t"><b>교정 후 다시 녹음</b> <span>— 피드백대로 고쳐서 한 번 더 연주해 올려요.</span></div></div>
+          <div class="step"><span class="n">5</span><div class="t"><b>성장 기록 + 마일리지</b> <span>— 전·후 비교가 저장되고 마일리지가 쌓여요.</span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 규칙 -->
+    <section style="padding-top:0;">
+      <div class="rules">
+        <div class="rule"><span class="emj">📅</span><div class="rt"><b>과제는 주 1회 업로드</b><small>매주 새로운 과제가 열립니다. 한 주에 하나씩 도전하세요.</small></div></div>
+        <div class="rule"><span class="emj">✅</span><div class="rt"><b>5개 미션을 모두 통과하면 마일리지 지급</b><small>이번 주 미션 5개를 완료하면 일정 마일리지를 받습니다.</small></div></div>
+        <div class="rule"><span class="emj">📈</span><div class="rt"><b>쌓인 마일리지는 혜택으로</b><small>모은 마일리지는 반주 음원·구독 등 혜택에 사용할 수 있도록 준비 중이에요.</small></div></div>
+      </div>
+    </section>
+
+    <!-- 이번 주 미션 -->
+    <section>
+      <div class="card">
+        <div class="progress-head">
+          <div>
+            <h2 class="sec">이번 주 미션</h2>
+            <p class="sec-sub" style="margin-bottom:0;">5개를 모두 통과하면 마일리지를 받아요</p>
+          </div>
+          <div class="mileage-box">
+            <div class="m-label">내 마일리지</div>
+            <div class="m-val"><span id="mileage">0</span> <small>M</small></div>
+          </div>
+        </div>
+
+        <div class="bar"><span id="bar"></span></div>
+        <p class="bar-cap"><b id="doneCount">0</b> / 5 완료</p>
+
+        <div id="missionList">
+          <label class="mission" for="m1">
+            <input type="checkbox" id="m1" data-mission>
+            <div class="mbody"><h3>미션 1 · 이번 주 과제곡 확인하기</h3><p>이번 주 과제 악보를 열고 곡을 파악해요.</p></div>
+            <span class="mtag plus">준비</span>
+          </label>
+          <label class="mission" for="m2">
+            <input type="checkbox" id="m2" data-mission>
+            <div class="mbody"><h3>미션 2 · 교정 전 연주 녹음 업로드</h3><p>지금 실력 그대로 연주해 AI 선생님에게 올려요.</p></div>
+            <span class="mtag before">교정 전</span>
+          </label>
+          <label class="mission" for="m3">
+            <input type="checkbox" id="m3" data-mission>
+            <div class="mbody"><h3>미션 3 · AI 진단 리포트 확인</h3><p>음정·박자·틀린 음 결과와 피드백을 읽어봐요.</p></div>
+            <span class="mtag plus">분석</span>
+          </label>
+          <label class="mission" for="m4">
+            <input type="checkbox" id="m4" data-mission>
+            <div class="mbody"><h3>미션 4 · 교정 후 연주 다시 녹음</h3><p>피드백대로 고쳐서 한 번 더 연주해 올려요.</p></div>
+            <span class="mtag after">교정 후</span>
+          </label>
+          <label class="mission" for="m5">
+            <input type="checkbox" id="m5" data-mission>
+            <div class="mbody"><h3>미션 5 · 전·후 비교 + 소감 남기기</h3><p>얼마나 좋아졌는지 확인하고 짧은 소감을 남겨요.</p></div>
+            <span class="mtag after">완료</span>
+          </label>
+        </div>
+
+        <div class="reward-note" id="reward">🎉 이번 주 미션 5개를 모두 통과했어요! <b>500 마일리지</b>가 지급되었습니다.</div>
+
+        <div class="actions">
+          <a class="btn btn-primary" href="http://127.0.0.1:8000" target="_blank" rel="noopener">🎙️ AI 선생님 열고 연주 분석 시작하기</a>
+          <button class="btn btn-reset" id="resetBtn" type="button">이번 주 미션 다시 시작</button>
+        </div>
+
+        <div class="device-note">
+          💡 <b>처음이신가요?</b> AI 선생님은 지금은 <b>내 PC에서 실행되는 프로그램</b>이에요.
+          먼저 <code>클라리넷_선생님_시작.bat</code> 파일을 실행해 장치를 켠 뒤 위 버튼을 눌러주세요.
+          장치가 꺼져 있으면 분석 화면(<code>127.0.0.1:8000</code>)이 열리지 않습니다.
+          <br>🌐 누구나 온라인에서 바로 쓸 수 있는 <b>웹 버전은 준비 중</b>입니다.
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>
+    &copy; 2026 CLASSLOG (클라쓰로그) · 마일리지 미션<br>
+    ※ 마일리지 수치는 예시이며, 정식 정책은 추후 안내됩니다.
+  </footer>
+
+  <script>
+    // 이번 주 미션 진행 상태를 브라우저에 저장 (localStorage)
+    var KEY = 'classlog_mission_week';
+    var REWARD = 500; // 5개 완료 시 지급 마일리지 (예시)
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('[data-mission]'));
+
+    function load() {
+      try {
+        var raw = localStorage.getItem(KEY);
+        if (!raw) return { checks: {}, mileage: 0, rewarded: false };
+        return JSON.parse(raw);
+      } catch (e) { return { checks: {}, mileage: 0, rewarded: false }; }
+    }
+    function save(state) {
+      try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+    }
+
+    var state = load();
+
+    function render() {
+      var done = 0;
+      boxes.forEach(function (b) {
+        var on = !!state.checks[b.id];
+        b.checked = on;
+        b.closest('.mission').classList.toggle('done', on);
+        if (on) done++;
+      });
+      var pct = (done / boxes.length) * 100;
+      document.getElementById('bar').style.width = pct + '%';
+      document.getElementById('doneCount').textContent = done;
+      document.getElementById('mileage').textContent = state.mileage || 0;
+      document.getElementById('reward').classList.toggle('show', !!state.rewarded);
+    }
+
+    boxes.forEach(function (b) {
+      b.addEventListener('change', function () {
+        state.checks[b.id] = b.checked;
+        var done = boxes.filter(function (x) { return x.checked; }).length;
+        // 5개 모두 완료 → 최초 1회 마일리지 지급
+        if (done === boxes.length && !state.rewarded) {
+          state.rewarded = true;
+          state.mileage = (state.mileage || 0) + REWARD;
+        }
+        save(state);
+        render();
+      });
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', function () {
+      if (!confirm('이번 주 미션 체크를 모두 지울까요? (쌓인 마일리지는 유지됩니다)')) return;
+      state.checks = {};
+      state.rewarded = false; // 다음 주 새 과제를 위해 초기화
+      save(state);
+      render();
+    });
+
+    render();
+  </script>
+
+</body>
+</html>
